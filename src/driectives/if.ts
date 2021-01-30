@@ -2,15 +2,15 @@ import { expr } from '../expression'
 import VElememt from '../velement'
 
 export default {
-  init(velement: VElememt, _direction: DirectiveOption) {
+  init(_velement: VElememt, direction: DirectiveOption) {
     // 创建一个注释节点,并保存在虚拟DOM上
     let holder = document.createComment('holder')
-    velement._holder = holder
+    direction.mate._holder = holder
   },
   update(velement: VElememt, direction: DirectiveOption) {
-    let result = expr(direction.value, velement._component._data)
+    let result = expr(direction.value, velement._proxy)
     const el = velement._el
-    const holder = velement._holder
+    const holder = direction.mate._holder
 
     if (result) {
       if (!el.parentNode) {

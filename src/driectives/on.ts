@@ -9,21 +9,24 @@ export default {
       // 只有一个函数可以不写括号
       // fn
       // fn()
-      velement._component._data.$event = ev
+
+      velement._set('$event', ev)
+
       let str = direction.value
       if (/^[\$|_|a-z][a-z|0-9|_|\$|]*$/i.test(str)) {
         str = `${str}($event)`
       }
-      expr(str, velement._component._data)
+      expr(str, velement._proxy)
     }
-    velement._eventHandler = { name: direction.arg, handler: eventHandler }
+    direction.mate._eventHandler = { name: direction.arg, handler: eventHandler }
 
     velement._el.addEventListener(direction.arg, eventHandler)
   },
   update: null,
-  destory(velement: VElememt, _direction: DirectiveOption) {
-    if (velement._eventHandler) {
-      const { name, handler } = velement._eventHandler
+  destory(velement: VElememt, direction: DirectiveOption) {
+    const eventHandler = direction.mate._eventHandler
+    if (eventHandler) {
+      const { name, handler } = eventHandler
       velement._el.removeEventListener(name, handler)
     }
   },

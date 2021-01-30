@@ -1,11 +1,12 @@
 import { assert } from './common'
 import VElememt from './velement'
-import Vue from './vue'
+import VNode from './vnode'
 
 export default class VComponent extends VElememt {
-  constructor(options, component: Vue) {
+  public _directives: any
+  constructor(options, parent: VNode<any> | Vue, component: Vue | VComponent) {
     assert(options)
-    super(options, component)
+    super(options, parent, component)
   }
 
   render() {}

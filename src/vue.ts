@@ -7,8 +7,9 @@ import defaultDriectives from './driectives'
 
 class Vue {
   root: VNode<any>
-  _data: DateType
+  _data: DataType
   _directives: Directives
+  _render_timeer: NodeJS.Timeout
   status: StatusType
   created?: () => void
   updated?: () => void
@@ -17,32 +18,45 @@ class Vue {
     // 初始化响应数据
     let _staticData = { ...methed } // 不被监听的对象
     this._data = createProxy(data || {}, _staticData, () => {
-      this.render()
+      this.forceRender()
     })
-
     this._directives = { ...defaultDriectives, ...directives }
     this.created = created
     this.updated = updated
-
+    this._render_timeer = (0 as unknown) as NodeJS.Timeout
     let el = dom(options.el)
     let domTree = parserDOM(el)
-    let vdomTree = createVDom(domTree!, this)
+    let vdomTree = createVDom(domTree!, this, this)
     this.root = vdomTree
+
+    // 初始化所有 directive
+    // function initDirective(ele: VElememt) {
+    //   if (ele._directive) {
+    //     ele._directive('init')
+    //     ele.status = 'init'
+    //   }
+
+    //   ele.$children?.forEach((ele) => ele._directive('init'))
+    // }
+    // initDirective(this.root)
 
     // 初始化结束 执行 created 方法
     this.status = 'init'
     this.created && this.created.call(this._data)
 
-    // 第一次渲染
     this.render()
   }
 
-  render() {
-    // 渲染自己
-    this.root.render()
+  forceRender() {
+    clearTimeout(this._render_timeer)
 
-    // 渲染子集
-    this.root.$children?.forEach((child) => child.render())
+    this._render_timeer = setTimeout(() => {
+      this.render()
+    }, 0)
+  }
+
+  render() {
+    this.root.render()
 
     this.status = 'update'
     this.updated && this.updated.call(this._data)

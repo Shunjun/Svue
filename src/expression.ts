@@ -1,4 +1,6 @@
 import { assert } from './common'
+import VComponent from './vcomponent'
+import VNode from './vnode'
 
 type Data = { [K: string]: any }
 
@@ -35,7 +37,7 @@ export function expr<T extends Data>(str: string, data: T): any {
           return str
         }
 
-        let value = segment.value.replace(/\.?[\$|_|a-z][a-z|0-9|_|\$|]*/gi, (str) => {
+        let value = segment.value.replace(/\.?[\$|_|a-z][a-z|0-9|_|\$|]*/gi, (str: string) => {
           if (str.startsWith('.')) {
             return saveLastStr(str)
           }
@@ -117,7 +119,12 @@ export function compileStringTemplate(str: string) {
  * @param {string} str
  * @return {*}
  */
-export function parserStr(str: string) {
+export function parserStr(
+  str: string
+): {
+  type: string
+  value: any
+}[] {
   let strArr = []
 
   while (1) {

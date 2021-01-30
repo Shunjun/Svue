@@ -1,29 +1,27 @@
 import { assert, isElementOption } from './common'
 import VElememt from './velement'
 import VComponent from './vcomponent'
+import VText from './vtext'
 import VNode from './vnode'
-import VText from './vtest'
-import Vue from './vue'
 
-export default function createVDom(node: VOptions, compoennt: Vue) {
-  assert(node)
-  assert(node._vue)
+export default function createVDom(node: VOptions, parent: VNode<any> | Vue, compoennt: Vue | VComponent) {
+  assert(node?._vue)
   assert(node.type === 'element' || node.type === 'text')
 
   if (isElementOption(node)) {
-    let parent: VNode<any>
     if (node.isHtml) {
       // VElement
-      parent = new VElememt(node, compoennt)
+      let vele = new VElememt(node, parent, compoennt)
+      vele.$children = node.children?.map((child) => createVDom(child, vele, compoennt)) || []
+      return vele
     } else {
       // Component
-      parent = new VComponent(node, compoennt)
+      let vcmp = new VComponent(node, parent, compoennt)
+      vcmp.$children = node.children?.map((child) => createVDom(child, vcmp, vcmp)) || []
+      return vcmp
     }
-    parent.$children = node.children?.map((child) => createVDom(child, compoennt))
-
-    return parent
   } else {
     // VText
-    return new VText(node, compoennt)
+    return new VText(node, parent, compoennt)
   }
 }

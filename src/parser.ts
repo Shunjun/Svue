@@ -76,21 +76,22 @@ export function parserDirectives(attrs: Attributes): DirectiveOption[] {
 
   for (const key in attrs) {
     if (Object.prototype.hasOwnProperty.call(attrs, key)) {
-      let directive: Partial<DirectiveOption> | undefined
+      let directive: DirectiveOption | undefined
       const attribute = attrs[key]
+      let value = attribute.value === '' ? 'true' : attribute.value
       if (attribute.name.startsWith('v-')) {
         // v- v-if="xxx" v-bind:xxx="xxx" v-show="xxx" v-on:xxx="xxx"
         let [name, arg] = attribute.name.split(':')
         name = name.replace(/^v\-/, '')
-        directive = { name, arg }
+        directive = { name, arg, value, mate: {} }
       } else if (attribute.name.startsWith(':')) {
         // : v-bind:xxx
         let arg = attribute.name.slice(1)
-        directive = { name: 'bind', arg }
+        directive = { name: 'bind', arg, value, mate: {} }
       } else if (attribute.name.startsWith('@')) {
         // @ v-on:xxx
         let arg = attribute.name.slice(1)
-        directive = { name: 'on', arg }
+        directive = { name: 'on', arg, value, mate: {} }
       }
 
       if (directive) {
@@ -101,9 +102,15 @@ export function parserDirectives(attrs: Attributes): DirectiveOption[] {
           `v-bind arg is required: ${key} `
         )
 
-        let value = attribute.value === '' ? 'true' : attribute.value
-        directive = { ...directive, value }
-        directives.push(<DirectiveOption>directive)
+        if (directive.name === 'model') {
+          // 拆分model指令为on和bind
+          let value = directive.value
+
+          directives.push({ name: 'on', arg: 'input', value: `${value}=$event.target.value`, mate: {} })
+          directives.push({ name: 'bind', arg: 'value', value: value, mate: {} })
+        } else {
+          directives.push(directive)
+        }
       }
     }
   }
