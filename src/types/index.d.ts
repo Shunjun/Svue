@@ -28,6 +28,7 @@ interface DirectiveOption {
   name: DirectiveNames
   arg: string | undefined
   value: string
+  mate: DataType
 }
 
 type DirectiveNames =
@@ -56,11 +57,11 @@ interface Listener {
   value: string
 }
 
-type DateType = { [K: string]: any }
+type DataType = { [K: string]: any }
 
 interface VueOptions {
   el: Node | string
-  data?: DateType
+  data?: DataType
   methed?: { [K: string]: (...any: any[]) => any }
   comput?: { [K: string]: (...any: any[]) => any }
   watch?: { [K: string]: (...any: any[]) => any }
@@ -75,7 +76,7 @@ type StatusType = 'init' | 'update' | 'uninit'
 
 interface Vue {
   root: VNode<any>
-  _data: DateType
+  _data: DataType
   _directives: Directives
   status: StatusType
   created?: () => void

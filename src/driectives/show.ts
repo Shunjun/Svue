@@ -3,8 +3,8 @@ import VElememt from '../velement'
 
 export default {
   init: null,
-  update(velement: VElememt, direction: Directive) {
-    let result = expr(direction.value, velement._component._data)
+  update(velement: VElememt, direction: DirectiveOption) {
+    let result = expr(direction.value, velement._proxy)
 
     if (result) {
       velement._el.style.display = ''

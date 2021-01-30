@@ -12,19 +12,19 @@ function isNotifyCb(item: any): item is NotifyCb {
 
 const staticKeys = ['$']
 
-export default function createProxy(activeData: DateType, cb: NotifyCb): DateType
-export default function createProxy(activeData: DateType, staticData: DateType, cb: NotifyCb): DateType
-export default function createProxy(activeData: DateType, staticData: DateType, cb?: NotifyCb): DateType {
+export default function createProxy(activeData: DataType, cb: NotifyCb): DataType
+export default function createProxy(activeData: DataType, staticDatas: DataType, cb: NotifyCb): DataType
+export default function createProxy(activeData: DataType, staticDatas: DataType, cb?: NotifyCb): DataType {
   // 处理重构
   let callback: NotifyCb
-  if (isNotifyCb(staticData)) {
-    callback = staticData
-    staticData = {}
+  if (isNotifyCb(staticDatas)) {
+    callback = staticDatas
+    staticDatas = {}
   } else {
     callback = cb!
   }
 
-  let data: DateType | Array<any>
+  let data: DataType | Array<any>
 
   if (Array.isArray(activeData)) {
     data = []
@@ -38,7 +38,7 @@ export default function createProxy(activeData: DateType, staticData: DateType, 
   } else {
     data = {}
     for (const key in activeData) {
-      if (isstaticKey(key)) {
+      if (isStaticKey(key)) {
         throw new Error(`[${key}] is unavailable`)
       }
       const item = activeData[key]
@@ -51,36 +51,29 @@ export default function createProxy(activeData: DateType, staticData: DateType, 
     }
   }
 
-  if (staticData && !Array.isArray(data)) {
-    // 将 staticData 放入 data
-    for (const key in staticData) {
-      data[key] = staticData[key]
-    }
-  }
-
   // 判断name 是不是静态 Key
   // 静态 Key 不会触发 Callback
-  function isstaticKey(name: string | number) {
-    if (typeof name === 'number') {
-      return false
-    } else {
-      // key 是 object
-      let res = false
-      name in staticData && (res = true)
-      staticKeys.forEach((key) => {
-        name.startsWith(key) && (res = true)
-      })
+  function isStaticKey(name: string | number) {
+    if (typeof name === 'number') return false
+    // 是 object
+    let res = false
+    staticKeys.forEach((key) => {
+      name.startsWith(key) && (res = true)
+    })
 
-      return res
-    }
+    return res
   }
 
   return new Proxy(data, {
-    get(data: DateType, name: keyof typeof data) {
-      return Reflect.get(data, name)
+    get(data: DataType, name: keyof typeof data | keyof typeof staticDatas) {
+      if (name in staticDatas) {
+        return staticDatas[name]
+      } else {
+        return Reflect.get(data, name)
+      }
     },
-    set(data: DateType, name: keyof typeof data, val) {
-      if (isstaticKey(name)) {
+    set(data: DataType, name: keyof typeof data, val) {
+      if (isStaticKey(name)) {
         Reflect.set(data, name, val)
         return true
       } else {

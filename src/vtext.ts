@@ -1,20 +1,20 @@
 import VNode from './vnode'
 import { assert } from './common'
-import Vue from './vue'
 import { compileStringTemplate, expr } from './expression'
+import VComponent from './vcomponent'
 
 export default class VText extends VNode<Text> {
   public _template: string
-  constructor(options: VTextOption, component: Vue) {
+  public _last_data: string // 上一次渲染的内容,用来比较更新
+
+  constructor(options: VTextOption, parent: VNode<any> | Vue, component: Vue | VComponent) {
     assert(options)
     assert(options.el)
     assert(options.data)
 
-    super(options.el as Text, component)
-
+    super(options.el as Text, parent, component)
     this._template = options.data
-
-    this.render()
+    this._last_data = ''
 
     this.status = 'init'
   }
@@ -23,14 +23,17 @@ export default class VText extends VNode<Text> {
     let data = compileStringTemplate(this._template)
       .map((item) => {
         if (item.type === 'expression') {
-          return expr(item.value, this._component._data)
+          return expr(item.value, this._proxy)
         } else {
           return item.value
         }
       })
       .join('')
 
-    this._el.data = data
+    if (data !== this._last_data) {
+      this._el.data = data
+      this._last_data = data
+    }
 
     this.status = 'update'
   }

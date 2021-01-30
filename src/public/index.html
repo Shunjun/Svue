@@ -7,7 +7,7 @@
   </head>
   <body>
     <div id="root" :title="a" class="box aaa" v-show>
-      这是一个测试页面
+      <!-- 这是一个测试页面
       <a-cmp>这是一个自定义标签</a-cmp>
       <div v-show>这是一个默认显示的标签</div>
       <div v-show="show">这是一个可以隐藏的标签</div>
@@ -19,11 +19,17 @@
       <div>a={{a}}, b={{b}} sum={{a+b}}</div>
       <input type="button" value="AB+1" @click="fn" />
       <div v-herf="" v-cloak></div>
-      <div v-if="show">这是V-if显示的内容</div>
-      <ul id="ul1">
-        列表
-        <li>列表项</li>
-      </ul>
+      <div v-if="show">这是V-if显示的内容</div> -->
+      <div>
+        <div>
+          <div>
+            <ul id="ul1">
+              列表
+              <li v-for="item in arr">列表项{{item}}列表项</li>
+            </ul>
+          </div>
+        </div>
+      </div>
     </div>
   </body>
 </html>
