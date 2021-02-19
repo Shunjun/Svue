@@ -6,11 +6,7 @@
 
 ### 运行demo
 ```
-<<<<<<< HEAD
 git clone git@github.com:Shunjun/Svue.git
-=======
-git clone 
->>>>>>> master
 cd Svue
 npm install
 npm run dev
