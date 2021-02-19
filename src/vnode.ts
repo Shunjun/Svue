@@ -5,15 +5,15 @@ import VComponent from './vcomponent'
 export default class VNode<T extends Node> {
   public _el: T
   public $children: VNode<Node>[]
-  public $root: Vue | VComponent
+  public $root: VComponent
   public status: StatusType
   public _data: DataType
-  public $parent: VNode<any> | Vue
+  public $parent: VNode<any> | VComponent
   public _proxy: DataType
   public name: string
   public _vue: true
 
-  constructor(el: T, parent: VNode<any> | Vue, component: Vue | VComponent) {
+  constructor(el: T, parent: VNode<any> | VComponent, component: VComponent | VComponent) {
     assert(el)
     assert(el instanceof Node)
 
@@ -38,7 +38,7 @@ export default class VNode<T extends Node> {
   }
 
   _get(key: string): any {
-    let cur: VNode<any> | Vue = this
+    let cur: VNode<any> | VComponent = this
 
     while (cur) {
       if (cur._data[key] !== undefined) {

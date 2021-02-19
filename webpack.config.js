@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 module.exports = {
   //...
   mode: 'development',
-  entry: path.resolve(__dirname, 'src/index.ts'),
+  entry: path.resolve(__dirname, 'example/index.ts'),
   module: {
     rules: [
       {
@@ -17,6 +17,7 @@ module.exports = {
     ],
   },
   resolve: {
+    modules: [path.resolve(__dirname, "src")],
     extensions: ['.js', '.ts',]
   },
   devServer: {
@@ -28,7 +29,7 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Vue.js',
-      template: './src/public/index.html'
+      template: './example/public/index.html'
     })
   ],
   devtool: 'eval'

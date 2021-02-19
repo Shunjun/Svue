@@ -12,7 +12,7 @@ export default class VElememt extends VNode<HTMLElement> {
   public $listeners: DirectiveOption[]
   public _options: VElementOption
 
-  constructor(options: VElementOption, parent: VNode<any> | Vue, component: Vue | VComponent) {
+  constructor(options: VElementOption, parent: VNode<any> | VComponent, component: VComponent) {
     assert(options)
     assert(options.el)
     assert(options.atts)
