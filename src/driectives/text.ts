@@ -5,12 +5,9 @@ export default {
   init: null,
   update(vElement: VElement, direction: DirectiveOption) {
     let result = expr(direction.value, vElement._proxy)
-
-    if (result) {
-      vElement._el.style.display = ''
-    } else {
-      vElement._el.style.display = 'none'
-    }
+    let text = document.createTextNode(result)
+    vElement._el.innerHTML = ''
+    vElement._el.appendChild(text)
   },
   destroy: null,
 }

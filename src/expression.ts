@@ -1,6 +1,4 @@
-import { assert } from './common'
-import VComponent from './vcomponent'
-import VNode from './vnode'
+import {assert} from './common'
 
 type Data = { [K: string]: any }
 
@@ -15,10 +13,13 @@ type Data = { [K: string]: any }
  */
 export function expr<T extends Data>(str: string, data: T): any {
   const keyWords: { [K: string]: true } = {
-    new: true,
     class: true,
     let: true,
     const: true,
+  }
+
+  const variableAndunNewable: { [K: string]: true } = {
+    new: true,
     true: true,
   }
 
@@ -30,8 +31,8 @@ export function expr<T extends Data>(str: string, data: T): any {
     if (Object.prototype.hasOwnProperty.call(strSegment, key)) {
       const segment = strSegment[key]
       if (segment.type === 'expr') {
-        // 用来储存上一次匹配到的字符串
-        let lastStr: string
+        let lastStr: string  // 用来储存前一个匹配到的字符串
+
         function saveLastStr(str: string) {
           lastStr = str
           return str
@@ -41,17 +42,21 @@ export function expr<T extends Data>(str: string, data: T): any {
           if (str.startsWith('.')) {
             return saveLastStr(str)
           }
-          if ((str in window && !data[str]) || str in keyWords) {
+          if ((str in window && !data[str]) || str in keyWords || str in variableAndunNewable) {
+            // 当前key 如果是全局对象 或者是关键词 或者是变量
+            return saveLastStr(str)
+          } else if (lastStr in keyWords) {
+            // 前一个key如果是创建变量，则当前在创建一个新的变量保存在 variableAndunNewable
+            // 变量仅当前可用
+            variableAndunNewable[str] = true
             return saveLastStr(str)
           } else {
-            if (lastStr in keyWords || str in keyWords) {
-              keyWords[str] = true
-              return saveLastStr(str)
-            }
+            verify(str, data)
             return saveLastStr(`data.${str}`)
           }
         })
         evalStrArr.push(value)
+
       } else if (segment.type === 'string') {
         evalStrArr.push(`"${segment.value}"`)
       }
@@ -60,6 +65,20 @@ export function expr<T extends Data>(str: string, data: T): any {
   let evalStr = evalStrArr.join('')
 
   return eval(evalStr)
+}
+
+/**
+ * 确认key存在data中
+ */
+function verify<T extends Data>(key: string, data: T) {
+  let keys = key.split('.')
+  keys.reduce((obj, k) => {
+    if (!obj[k]) {
+      throw  new Error(`[${key}] is not exist in data`)
+    }
+    return obj[k]
+  }, data)
+
 }
 
 /**
@@ -77,7 +96,7 @@ export function compileStringTemplate(str: string) {
   let n = 0
   while ((n = str.indexOf('{{', s)) !== -1) {
     if (n > s) {
-      result.push({ type: 'string', value: str.slice(s, n) })
+      result.push({type: 'string', value: str.slice(s, n)})
     }
 
     let m = 2
@@ -106,7 +125,7 @@ export function compileStringTemplate(str: string) {
   }
 
   if (s < str.length - 1) {
-    result.push({ type: 'string', value: str.slice(s) })
+    result.push({type: 'string', value: str.slice(s)})
   }
 
   return result

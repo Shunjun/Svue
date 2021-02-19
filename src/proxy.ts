@@ -1,5 +1,5 @@
 interface NotifyCb {
-  (name: PropertyKey): void
+  (name: PropertyKey[]): void
 }
 
 function isObject(item: any): item is object {
@@ -12,25 +12,38 @@ function isNotifyCb(item: any): item is NotifyCb {
 
 const staticKeys = ['$']
 
-export default function createProxy(activeData: DataType, cb: NotifyCb): DataType
-export default function createProxy(activeData: DataType, staticDatas: DataType, cb: NotifyCb): DataType
-export default function createProxy(activeData: DataType, staticDatas: DataType, cb?: NotifyCb): DataType {
+export default function createProxy(activeData: DataType, cb: NotifyCb, path?: PropertyKey[]): DataType
+export default function createProxy(
+  activeData: DataType,
+  staticDatas: DataType,
+  cb: NotifyCb,
+  path?: PropertyKey[]
+): DataType
+export default function createProxy(
+  activeData: DataType,
+  staticDatas: DataType,
+  cb?: NotifyCb | PropertyKey[],
+  path: PropertyKey[] = []
+): DataType {
   // 处理重构
   let callback: NotifyCb
   if (isNotifyCb(staticDatas)) {
+    // staticDatas 没有传
     callback = staticDatas
     staticDatas = {}
+    cb && Array.isArray(cb) && (path = cb)
+  } else if (isNotifyCb(cb)) {
+    callback = cb
   } else {
-    callback = cb!
+    throw new Error('callback is required')
   }
 
   let data: DataType | Array<any>
-
   if (Array.isArray(activeData)) {
     data = []
-    activeData.forEach((item) => {
+    activeData.forEach((item, index) => {
       if (isObject(item)) {
-        data.push(createProxy(item, callback))
+        data.push(createProxy(item, callback, [...path, index]))
       } else {
         data.push(item)
       }
@@ -42,9 +55,8 @@ export default function createProxy(activeData: DataType, staticDatas: DataType,
         throw new Error(`[${key}] is unavailable`)
       }
       const item = activeData[key]
-
       if (isObject(item)) {
-        data[key] = createProxy(item, callback)
+        data[key] = createProxy(item, callback, [...path, key])
       } else {
         data[key] = item
       }
@@ -78,12 +90,12 @@ export default function createProxy(activeData: DataType, staticDatas: DataType,
         return true
       } else {
         if (typeof val === 'object') {
-          Reflect.set(data, name, createProxy(val, callback))
+          Reflect.set(data, name, createProxy(val, callback, path))
         } else {
           Reflect.set(data, name, val)
         }
 
-        callback(name)
+        callback([...path, name])
 
         return true
       }

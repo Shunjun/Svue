@@ -21,6 +21,7 @@ export default {
 
       let newELements = new Array<VElememt | null>(resArr.length)
 
+      // TODO resArr只支持数组,增加对对象的支持
       // diff 渲染后的数据
       resArr.forEach((data: any, index: number) => {
         let i = oldData.indexOf(data) // 如果oldData里有
