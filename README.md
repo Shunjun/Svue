@@ -13,7 +13,7 @@ npm run dev
 ```
 
 ### 已实现的功能：
-Lifetime:
+Lifecycles:
 * created
 * updated
 
