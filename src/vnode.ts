@@ -1,70 +1,74 @@
-import { assert } from './common'
-import * as uuid from 'uuid'
-import VComponent from './vcomponent'
+import { assert } from "./common";
+const uuid = require("uuid");
+import VComponent from "./vcomponent";
 
 export default class VNode<T extends Node> {
-  public _el: T
-  public $children: VNode<Node>[]
-  public $root: VComponent
-  public status: StatusType
-  public _data: DataType
-  public $parent: VNode<any> | VComponent
-  public _proxy: DataType
-  public name: string
-  public _vue: true
+  public _el: T;
+  public $children: VNode<Node>[];
+  public $root: VComponent;
+  public status: StatusType;
+  public _data: DataType;
+  public $parent: VNode<any> | VComponent;
+  public _proxy: DataType;
+  public name: string;
+  public _vue: true;
 
-  constructor(el: T, parent: VNode<any> | VComponent, component: VComponent | VComponent) {
-    assert(el)
-    assert(el instanceof Node)
+  constructor(
+    el: T,
+    parent: VNode<any> | VComponent,
+    component: VComponent | VComponent
+  ) {
+    assert(el);
+    assert(el instanceof Node);
 
-    this._vue = true
-    this._el = el
-    this.status = 'uninit'
-    this.name = `${el.nodeName}-${uuid.v4()}`
-    this.$root = component
-    this.$parent = parent
-    this.$children = []
-    this._data = {}
-    let _that = this
+    this._vue = true;
+    this._el = el;
+    this.status = "uninit";
+    this.name = `${el.nodeName}-${uuid.v4()}`;
+    this.$root = component;
+    this.$parent = parent;
+    this.$children = [];
+    this._data = {};
+    let _that = this;
     this._proxy = new Proxy(this.$root._data, {
       get(_target: DataType, key: string) {
-        return _that._get(key)
+        return _that._get(key);
       },
-    })
+    });
   }
 
   _set(key: string, value: any) {
-    this._data[key] = value
+    this._data[key] = value;
   }
 
   _get(key: string): any {
-    let cur: VNode<any> | VComponent = this
+    let cur: VNode<any> | VComponent = this;
 
     while (cur) {
       if (cur._data[key] !== undefined) {
-        return cur._data[key]
+        return cur._data[key];
       }
 
       if (isVNode(cur)) {
-        cur = cur.$parent
+        cur = cur.$parent;
       } else {
-        break
+        break;
       }
     }
 
-    return undefined
+    return undefined;
   }
 
   render() {
-    throw new Error('render has not rewrite')
+    throw new Error("render has not rewrite");
   }
 
   clone() {
     // TODO
-    return new VNode(this._el.cloneNode(true), this.$parent, this.$root)
+    return new VNode(this._el.cloneNode(true), this.$parent, this.$root);
   }
 }
 
 function isVNode(item: any): item is VNode<any> {
-  return !!(item?._vue && item?.$parent)
+  return !!(item?._vue && item?.$parent);
 }

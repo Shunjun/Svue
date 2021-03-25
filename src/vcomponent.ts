@@ -63,6 +63,7 @@ export default class VComponent {
         }
       })
     })
+    
     console.log(this._staticData)
 
     this.status = 'init'

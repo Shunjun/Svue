@@ -8,20 +8,28 @@
 
 <body>
     <div id="root" :title="a" class="box aaa" v-show>
-        这是一个测试页面
+        <h3>这是一个测试页面</h3>
+        <div>---------------------自定义标签----------------------</div>
         <a-cmp>这是一个自定义标签</a-cmp>
+        <div>----------------------v-show------------------------</div>
         <div v-show>这是一个默认显示的标签</div>
         <div v-show="show">这是一个可以隐藏的标签</div>
         <input type="button" value="隐藏" @click="showHandler" />
+        <div>----------------------v-if------------------------</div>
+        <div v-if="show">这是V-if显示的内容</div>
+        <div>----------------------v-model------------------------</div>
         <div><input type="text" v-model:value="c" /></div>
         <div>{{c}}</div>
-        <!--      <cmp></cmp>-->
+        <div>----------------------v-html------------------------</div>
         <div v-html="str"></div>
+        <div>----------------------v-on------------------------</div>
         <div>a={{a}}, b={{b}} sum={{a+b}}</div>
         <input type="button" value="AB+1" @click="fn" />
+        <div>----------------------自定义指令----------------------</div>
         <div v-herf="" v-cloak></div>
-        <div v-if="show">这是V-if显示的内容</div>
+        <div>----------------------v-for----------------------</div>
         <div>
+          <button @click='addpeople'>添加</button>
             <div>
                 <div>
                     <ul id="ul1">
@@ -31,15 +39,13 @@
                 </div>
             </div>
         </div>
-
+        <div>----------------------watch----------------------</div>
         <div>{{json.son.d}}</div>
         <button @click="jsonAdd">watch测试</button>
-
-        <div>
-            <title>vuex测试</title>
+        <!-- <div>
             <cmp1 a='123'></cmp1>
             <cmp2></cmp2>
-        </div>
+        </div> -->
     </div>
 </body>
 
